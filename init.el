@@ -42,7 +42,7 @@
       basicPackages)
 
 ;; Font
-(set-frame-font "Inconsolata for Powerline 16" nil t)
+(set-frame-font "Inconsolata for Powerline 12" nil t)
 
 ;; All-The-Icons
 (require 'all-the-icons)
@@ -141,37 +141,17 @@
 
 ;; SERVERS
 (setq sql-connection-alist
-      '((vagrant-agency (sql-product 'postgres)
+      '((boilierplate (sql-product 'postgres)
                         (sql-port 5434)
                         (sql-server "localhost")
                         (sql-user "")
-                        (sql-database "agency"))
-        (vagrant-portals (sql-product 'postgres)
-                           (sql-port 5434)
-                           (sql-server "localhost")
-                           (sql-user "")
-                           (sql-password "")
-                           (sql-database "portals-replica"))
-        (portals-develop (sql-product 'postgres)
-                         (sql-port 5432)
-                         (sql-server "")
-                         (sql-user "")
-                         (sql-password "")
-                         (sql-database ""))))
+                        (sql-database "boilerplate"))
 
-(defun sql-portals-develop ()
+(defun sql-boilerplate ()
   (interactive)
-  (cai/connect-to-sql 'postgres 'portals-develop))
+  (postgres/connect 'postgres 'boilerplate))
 
-(defun sql-vagrant-agency ()
-  (interactive)
-  (cai/connect-to-sql 'postgres 'vagrant-agency))
-
-(defun sql-vagrant-portals ()
-  (interactive)
-  (cai/connect-to-sql 'postgres 'vagrant-portals))
-
-(defun cai/connect-to-sql (product connection)
+(defun postgres/connect (product connection)
   (setq sql-product product)
   (sql-connect connection))
 
