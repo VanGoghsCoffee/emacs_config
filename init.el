@@ -31,6 +31,9 @@
 (load-theme 'material t)
 (global-linum-mode t)
 
+(setq tab-width 2)
+(setq-default indent-tabs-mode nil)
+
 (defvar basicPackages
   '(fill-column-indicator
     neotree
@@ -59,6 +62,11 @@
 (setq-default fill-column 80)
 (add-hook 'after-change-major-mode-hook 'fci-mode)
 
+;; WHITESPACE
+(require 'whitespace)
+(autoload 'whitespace-mode           "whitespace" "Toggle whitespace visualization."        t)
+
+
 ;; Python CONFIGURATIONS
 ;; ---------------------------------------------------------
 (elpy-enable)
@@ -77,7 +85,7 @@
   (exec-path-from-shell-copy-env "PYTHONPATH")
   (exec-path-from-shell-initialize))
 
-(elpy-use-ipython)
+;; (elpy-use-ipython)
 
 ;; JAVASCRIPT SETTINGS
 ;; ---------------------------------------------------------
@@ -90,11 +98,23 @@
     json-mode
     tern
     tern-auto-complete
+    rjsx-mode
     yasnippet))
 (mapc #'(lambda (package)
 	  (unless (package-installed-p package)
 	    (package-install package)))
       jsPackages)
+
+(setq js-indent-level 2)
+(setq js2-basic-offset 2)
+
+(defun js-jsx-indent-line-align-closing-bracket ()
+"Workaround sgml-mode and align closing bracket with opening bracket"
+(save-excursion
+(beginning-of-line)
+(when (looking-at-p "^ +\/?> *$")
+(delete-char sgml-basic-offset))))
+(advice-add #'js-jsx-indent-line :after #'js-jsx-indent-line-align-closing-bracket)
 
 ;; associating json with js-mode
 ;;(add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
@@ -114,6 +134,9 @@
 (require 'auto-complete-config)
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
 (ac-config-default)
+
+(add-to-list 'load-path "~/.tern/emacs/")
+(autoload 'tern-mode "tern.el" nil t)
 
 (add-hook 'js-mode-hook (lambda () (tern-mode t)))
 (eval-after-load 'tern
@@ -145,7 +168,7 @@
                         (sql-port 5434)
                         (sql-server "localhost")
                         (sql-user "")
-                        (sql-database "boilerplate"))
+                        (sql-database "boilerplate"))))
 
 (defun sql-boilerplate ()
   (interactive)
@@ -156,6 +179,20 @@
   (sql-connect connection))
 
 ;;(Set sql-postgres-login-params (append sql-postgres-login-params '(port)))
+
+;; CSS SETTINGS
+;; ---------------------------------------------------------
+(defvar cssPackages
+  '(rainbow-mode))
+(mapc #'(lambda (package)
+	  (unless (package-installed-p package)
+	    (package-install package)))
+      cssPackages)
+(add-to-list 'auto-mode-alist '("\\.css$" . rainbow-mode))
+(add-to-list 'auto-mode-alist '("\\.scss$" . rainbow-mode))
+(add-to-list 'auto-mode-alist '("\\.sass$" . rainbow-mode))
+(add-to-list 'auto-mode-alist '("\\.less$" . rainbow-mode))
+
 
 ;; LANGUAGE SETTINGS
 ;; ---------------------------------------------------------
@@ -172,10 +209,19 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (fill-column-indicator elpy material-theme better-defaults))))
+    (rainbow-mode fill-column-indicator elpy material-theme better-defaults))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+;; HANDLE BACKUP FILES (*~)
+(setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+  backup-by-copying t    ; Don't delink hardlinks
+  version-control t      ; Use version numbers on backups
+  delete-old-versions t  ; Automatically delete excess backups
+  kept-new-versions 20   ; how many of the newest versions to keep
+  kept-old-versions 5    ; and how many of the old
+  )
